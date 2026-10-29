@@ -3,6 +3,16 @@ const app = express();
 
 const movies = [
   {
+    id: "101",
+    name: "Iron man 2",
+    poster:
+      "https://m.media-amazon.com/images/M/MV5BMTM0MDgwNjMyMl5BMl5BanBnXkFtZTcwNTg3NzAzMw@@._V1_FMjpg_UX1000_.jpg",
+    rating: 7,
+    summary:
+      "With the world now aware that he is Iron Man, billionaire inventor Tony Stark (Robert Downey Jr.) faces pressure from all sides to share his technology with the military. He is reluctant to divulge the secrets of his armored suit, fearing the information will fall into the wrong hands. With Pepper Potts (Gwyneth Paltrow) and Rhodes (Don Cheadle) by his side, Tony must forge new alliances and confront a powerful new enemy.",
+    trailer: "https://www.youtube.com/embed/wKtcmiifycU",
+  },
+  {
     id: "99",
     name: "Vikram",
     poster:
@@ -20,16 +30,6 @@ const movies = [
     summary:
       "RRR is an upcoming Indian Telugu-language period action drama film directed by S. S. Rajamouli, and produced by D. V. V. Danayya of DVV Entertainments.",
     trailer: "https://www.youtube.com/embed/f_vbAtFSEc0",
-  },
-  {
-    id: "101",
-    name: "Iron man 2",
-    poster:
-      "https://m.media-amazon.com/images/M/MV5BMTM0MDgwNjMyMl5BMl5BanBnXkFtZTcwNTg3NzAzMw@@._V1_FMjpg_UX1000_.jpg",
-    rating: 7,
-    summary:
-      "With the world now aware that he is Iron Man, billionaire inventor Tony Stark (Robert Downey Jr.) faces pressure from all sides to share his technology with the military. He is reluctant to divulge the secrets of his armored suit, fearing the information will fall into the wrong hands. With Pepper Potts (Gwyneth Paltrow) and Rhodes (Don Cheadle) by his side, Tony must forge new alliances and confront a powerful new enemy.",
-    trailer: "https://www.youtube.com/embed/wKtcmiifycU",
   },
   {
     id: "102",
@@ -115,6 +115,17 @@ const movies = [
 const PORT = 4000;
 app.get("/", function (request, response) {
   response.send("<h1>🙋‍♂️, 🌏 🎊✨🤩 Synechron</h1>");
+});
+
+app.get("/api/movies", function (request, response) {
+  response.send(movies);
+});
+
+app.get("/api/movies/:id", function (request, response) {
+  const { id } = request.params;
+
+  console.log(id);
+  response.send(movies[0]);
 });
 
 // Task create an another get api
