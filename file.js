@@ -19,3 +19,6 @@ const quote2 = "Live more, worry less 😄😊";
 // text-3.html
 // ....
 // text-10.html
+
+// Task 1.2
+// node file.js 30 -> 30 files to be created | text-1.html ...  text-30.html
