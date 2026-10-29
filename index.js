@@ -1,8 +1,11 @@
-console.log("Hello, 🌏");
-const dbl = (n) => n * 2;
-console.log(dbl(5));
+const express = require("express");
+const app = express();
 
-// console.log(document);
-// console.log(window);
+const PORT = 4000;
+app.get("/", function (request, response) {
+  response.send("🙋‍♂️, 🌏 🎊✨🤩");
+});
 
-console.log(process.argv); // argument
+app.listen(PORT, () =>
+  console.log(`The server started in: http://localhost:${PORT} ✨✨`),
+);
