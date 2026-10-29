@@ -1,16 +1,47 @@
 const fs = require("fs");
 
-const quote = "No beauty shines brighter than that of a good heart 😊";
+// const quote = "No beauty shines brighter than that of a good heart 😊";
 
-fs.writeFile("./awesome.html", quote, (err) => {
-  if (err) {
-    console.log(err);
+// fs.writeFile("./awesome.html", quote, (err) => {
+//   if (err) {
+//     console.log(err);
+//   }
+
+//   console.log("Completed Writing");
+// });
+
+function task1() {
+  const quote2 = "Live more, worry less 😄😊";
+
+  for (let i = 1; i <= 10; i++) {
+    fs.writeFile(`./backup/test-${i}.html`, quote2, (err) => {
+      if (err) {
+        console.log(err);
+      }
+
+      console.log(`Completed Writing - ${i}`);
+    });
   }
+}
 
-  console.log("Completed Writing");
-});
+task1();
 
-const quote2 = "Live more, worry less 😄😊";
+function task2(noOfFiles) {
+  const quote2 = "Live more, worry less 😄😊";
+
+  for (let i = 1; i <= noOfFiles; i++) {
+    fs.writeFile(`./backup/test-${i}.html`, quote2, (err) => {
+      if (err) {
+        console.log(err);
+      }
+
+      console.log(`Completed Writing - ${i}`);
+    });
+  }
+}
+
+const [, , noOfFiles] = process.argv;
+task2(+noOfFiles);
 // Task 1.1
 // Create the below files with quote2 as the content
 // /backup/
