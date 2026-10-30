@@ -1,136 +1,130 @@
 const express = require("express");
+const cors = require("cors");
+const mysql = require("mysql2/promise");
+
+if (require("node:fs").existsSync(".env")) process.loadEnvFile();
+
+const options = {
+  host: process.env.DB_HOST || "127.0.0.1",
+  port: Number(process.env.DB_PORT || 3306),
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+};
+const database = process.env.DB_NAME || "synechron_movies_node";
+const db = mysql.createPool({ ...options, database });
 const app = express();
+app.use(cors());
+app.use(express.json());
 
-const movies = [
-  {
-    id: "101",
-    name: "Iron man 2",
-    poster:
-      "https://m.media-amazon.com/images/M/MV5BMTM0MDgwNjMyMl5BMl5BanBnXkFtZTcwNTg3NzAzMw@@._V1_FMjpg_UX1000_.jpg",
-    rating: 7,
-    summary:
-      "With the world now aware that he is Iron Man, billionaire inventor Tony Stark (Robert Downey Jr.) faces pressure from all sides to share his technology with the military. He is reluctant to divulge the secrets of his armored suit, fearing the information will fall into the wrong hands. With Pepper Potts (Gwyneth Paltrow) and Rhodes (Don Cheadle) by his side, Tony must forge new alliances and confront a powerful new enemy.",
-    trailer: "https://www.youtube.com/embed/wKtcmiifycU",
-  },
-  {
-    id: "99",
-    name: "Vikram",
-    poster:
-      "https://upload.wikimedia.org/wikipedia/en/9/93/Vikram_2022_poster.jpg",
-    rating: 8.4,
-    summary:
-      "Members of a black ops team must track and eliminate a gang of masked murderers.",
-    trailer: "https://www.youtube.com/embed/OKBMCL-frPU",
-  },
-  {
-    id: "100",
-    name: "RRR",
-    poster: "https://upload.wikimedia.org/wikipedia/en/d/d7/RRR_Poster.jpg",
-    rating: 8.8,
-    summary:
-      "RRR is an upcoming Indian Telugu-language period action drama film directed by S. S. Rajamouli, and produced by D. V. V. Danayya of DVV Entertainments.",
-    trailer: "https://www.youtube.com/embed/f_vbAtFSEc0",
-  },
-  {
-    id: "102",
-    name: "No Country for Old Men",
-    poster:
-      "https://upload.wikimedia.org/wikipedia/en/8/8b/No_Country_for_Old_Men_poster.jpg",
-    rating: 8.1,
-    summary:
-      "A hunter's life takes a drastic turn when he discovers two million dollars while strolling through the aftermath of a drug deal. He is then pursued by a psychopathic killer who wants the money.",
-    trailer: "https://www.youtube.com/embed/38A__WT3-o0",
-  },
-  {
-    id: "103",
-    name: "Jai Bhim",
-    poster:
-      "https://m.media-amazon.com/images/M/MV5BY2Y5ZWMwZDgtZDQxYy00Mjk0LThhY2YtMmU1MTRmMjVhMjRiXkEyXkFqcGdeQXVyMTI1NDEyNTM5._V1_FMjpg_UX1000_.jpg",
-    summary:
-      "A tribal woman and a righteous lawyer battle in court to unravel the mystery around the disappearance of her husband, who was picked up the police on a false case",
-    rating: 8.8,
-    trailer: "https://www.youtube.com/embed/nnXpbTFrqXA",
-  },
-  {
-    id: "104",
-    name: "The Avengers",
-    rating: 8,
-    summary:
-      "Marvel's The Avengers (classified under the name Marvel Avengers\n Assemble in the United Kingdom and Ireland), or simply The Avengers, is\n a 2012 American superhero film based on the Marvel Comics superhero team\n of the same name.",
-    poster:
-      "https://terrigen-cdn-dev.marvel.com/content/prod/1x/avengersendgame_lob_crd_05.jpg",
-    trailer: "https://www.youtube.com/embed/eOrNdBpGMv8",
-  },
-  {
-    id: "105",
-    name: "Interstellar",
-    poster: "https://m.media-amazon.com/images/I/A1JVqNMI7UL._SL1500_.jpg",
-    rating: 8.6,
-    summary:
-      "When Earth becomes uninhabitable in the future, a farmer and ex-NASA\n pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team\n of researchers, to find a new planet for humans.",
-    trailer: "https://www.youtube.com/embed/zSWdZVtXT7E",
-  },
-  {
-    id: "106",
-    name: "Baahubali",
-    poster: "https://flxt.tmsimg.com/assets/p11546593_p_v10_af.jpg",
-    rating: 8,
-    summary:
-      "In the kingdom of Mahishmati, Shivudu falls in love with a young warrior woman. While trying to woo her, he learns about the conflict-ridden past of his family and his true legacy.",
-    trailer: "https://www.youtube.com/embed/sOEg_YZQsTI",
-  },
-  {
-    id: "107",
-    name: "Ratatouille",
-    poster:
-      "https://resizing.flixster.com/gL_JpWcD7sNHNYSwI1ff069Yyug=/ems.ZW1zLXByZC1hc3NldHMvbW92aWVzLzc4ZmJhZjZiLTEzNWMtNDIwOC1hYzU1LTgwZjE3ZjQzNTdiNy5qcGc=",
-    rating: 8,
-    summary:
-      "Remy, a rat, aspires to become a renowned French chef. However, he fails to realise that people despise rodents and will never enjoy a meal cooked by him.",
-    trailer: "https://www.youtube.com/embed/NgsQ8mVkN8w",
-  },
-  {
-    name: "PS2",
-    poster:
-      "https://m.media-amazon.com/images/M/MV5BNjUxYzY3ZmEtY2FkYi00MTE5LTkyNzUtOWY5YTM1MDdiMzIyXkEyXkFqcGc@._V1_.jpg",
+// Match the React app's movie fields and string ids.
+const columns = "CAST(id AS CHAR) AS id, name, poster, rating, summary, trailer";
+async function findMovie(id) {
+  const [movies] = await db.execute(`SELECT ${columns} FROM movies WHERE id = ?`, [id]);
+  return movies[0];
+}
 
-    summary:
-      "Ponniyin Selvan: I is an upcoming Indian Tamil-language epic period action film directed by Mani Ratnam, who co-wrote it with Elango Kumaravel and B. Jeyamohan",
-    rating: 8,
-    trailer: "https://www.youtube.com/embed/KsH2LA8pCjo",
-    id: "108",
-  },
-  {
-    name: "Thor: Ragnarok",
-    poster:
-      "https://m.media-amazon.com/images/M/MV5BMjMyNDkzMzI1OF5BMl5BanBnXkFtZTgwODcxODg5MjI@._V1_.jpg",
-    summary:
-      "When Earth becomes uninhabitable in the future, a farmer and ex-NASA\\n pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team\\n of researchers, to find a new planet for humans.",
-    rating: 8.8,
-    trailer: "https://youtu.be/NgsQ8mVkN8w",
-    id: "109",
-  },
-];
+function movieValues(body) {
+  const { name, poster, rating, summary, trailer = "" } = body || {};
+  if ([name, poster, summary].some((value) => typeof value !== "string" || !value.trim())
+    || name.trim().length > 255 || typeof trailer !== "string"
+    || !["number", "string"].includes(typeof rating) || String(rating).trim() === ""
+    || !Number.isFinite(Number(rating)) || Number(rating) < 0 || Number(rating) > 10) {
+    const error = new Error("Provide name (1-255 characters), poster, summary, and rating (0-10). Trailer is optional.");
+    error.status = 400;
+    throw error;
+  }
+  return [name.trim(), poster.trim(), Number(rating), summary.trim(), trailer.trim()];
+}
 
-const PORT = 4000;
-app.get("/", function (request, response) {
-  response.send("<h1>🙋‍♂️, 🌏 🎊✨🤩 Synechron</h1>");
+app.param("id", (req, res, next, id) => {
+  if (!/^[1-9]\d*$/.test(id) || Number(id) > 4294967295) {
+    return res.status(400).json({ message: "Movie id must be a positive integer up to 4294967295." });
+  }
+  next();
 });
 
-app.get("/api/movies", function (request, response) {
-  response.send(movies);
+app.get("/", (req, res) => res.send("<h1>🙋‍♂️, 🌏 🎊✨🤩 Synechron</h1>"));
+
+// READ all movies.
+app.get("/api/movies", async (req, res) => {
+  const [movies] = await db.query(`SELECT ${columns} FROM movies ORDER BY id DESC`);
+  res.json(movies);
 });
 
-app.get("/api/movies/:id", function (request, response) {
-  const { id } = request.params;
-
-  console.log(id);
-  response.send(movies[0]);
+// READ one movie.
+app.get("/api/movies/:id", async (req, res) => {
+  //   Match the right movieaa
+  const movie = await findMovie(req.params.id);
+  if (!movie) return res.status(404).json({ message: "Movie not found." });
+  res.json(movie);
 });
 
-// Task create an another get api
-// /api/movies -> movies
+// CREATE a movie. MySQL generates its id.
+app.post("/api/movies", async (req, res) => {
+  const [result] = await db.execute(
+    "INSERT INTO movies (name, poster, rating, summary, trailer) VALUES (?, ?, ?, ?, ?)",
+    movieValues(req.body),
+  );
+  res.status(201).json(await findMovie(result.insertId));
+});
 
-app.listen(PORT, () =>
-  console.log(`The server started in: http://localhost:${PORT} ✨✨`),
-);
+// UPDATE a movie. Send the same fields as POST.
+app.put("/api/movies/:id", async (req, res) => {
+  await db.execute(
+    "UPDATE movies SET name = ?, poster = ?, rating = ?, summary = ?, trailer = ? WHERE id = ?",
+    [...movieValues(req.body), req.params.id],
+  );
+  const movie = await findMovie(req.params.id);
+  if (!movie) return res.status(404).json({ message: "Movie not found." });
+  res.json(movie);
+});
+
+// DELETE a movie.
+app.delete("/api/movies/:id", async (req, res) => {
+  const [result] = await db.execute("DELETE FROM movies WHERE id = ?", [req.params.id]);
+  if (!result.affectedRows) return res.status(404).json({ message: "Movie not found." });
+  res.status(204).end();
+});
+
+app.use((req, res) => res.status(404).json({ message: "Route not found." }));
+// Express 5 forwards errors from async routes to this handler.
+app.use((error, req, res, next) => {
+  const status = error.status || 500;
+  if (status === 500) console.error(error.code || error.message);
+  res.status(status).json({ message: status === 500 ? "Database request failed." : error.message });
+});
+
+async function start() {
+  // First run creates a separate database and an empty movies table.
+  const setup = await mysql.createConnection(options);
+  try {
+    await setup.query(`CREATE DATABASE IF NOT EXISTS ${mysql.escapeId(database)} CHARACTER SET utf8mb4`);
+  } finally {
+    await setup.end();
+  }
+  await db.query(`CREATE TABLE IF NOT EXISTS movies (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    poster TEXT NOT NULL,
+    rating DOUBLE NOT NULL,
+    summary TEXT NOT NULL,
+    trailer TEXT NOT NULL
+  )`);
+
+  const port = Number(process.env.PORT || 4000);
+  const server = app.listen(port, () => console.log(`Movie API: http://localhost:${port}/api/movies`));
+  server.on("error", async (error) => {
+    console.error(error.code || error.message);
+    await db.end();
+    process.exitCode = 1;
+  });
+  const stop = () => server.close(() => db.end());
+  process.once("SIGINT", stop);
+  process.once("SIGTERM", stop);
+}
+
+start().catch(async (error) => {
+  console.error("Startup failed. Check MySQL and the DB_* settings:", error.code || error.message);
+  await db.end();
+  process.exitCode = 1;
+});
