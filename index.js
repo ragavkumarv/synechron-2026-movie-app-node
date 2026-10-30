@@ -95,23 +95,9 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: status === 500 ? "Database request failed." : error.message });
 });
 
-async function start() {
-  // First run creates a separate database and an empty movies table.
-  const setup = await mysql.createConnection(options);
-  try {
-    await setup.query(`CREATE DATABASE IF NOT EXISTS ${mysql.escapeId(database)} CHARACTER SET utf8mb4`);
-  } finally {
-    await setup.end();
-  }
-  await db.query(`CREATE TABLE IF NOT EXISTS movies (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    poster TEXT NOT NULL,
-    rating DOUBLE NOT NULL,
-    summary TEXT NOT NULL,
-    trailer TEXT NOT NULL
-  )`);
-
+try {
+  // Run database.sql once before starting the server.
+  await db.query("SELECT id FROM movies LIMIT 1");
   const port = Number(process.env.PORT || 4000);
   const server = app.listen(port, () => console.log(`Movie API: http://localhost:${port}/api/movies`));
   server.on("error", async (error) => {
@@ -122,10 +108,8 @@ async function start() {
   const stop = () => server.close(() => db.end());
   process.once("SIGINT", stop);
   process.once("SIGTERM", stop);
-}
-
-start().catch(async (error) => {
-  console.error("Startup failed. Check MySQL and the DB_* settings:", error.code || error.message);
+} catch (error) {
+  console.error("Startup failed. Check .env and run database.sql:", error.code || error.message);
   await db.end();
   process.exitCode = 1;
-});
+}

@@ -1,20 +1,29 @@
 # Simple movie backend
 
-All backend code is in `index.js`: Express + MySQL CRUD for `synechron-2026-movie-app-react`.
-Uses ES module imports and dotenv for environment settings.
+Express + MySQL CRUD for `synechron-2026-movie-app-react`, using ES module imports and dotenv.
 Requires Node.js 22+ and a running MySQL server.
 
 ```sh
 npm install
 cp .env.example .env
-# Set your MySQL username/password in .env, then:
+```
+
+Set your MySQL credentials in `.env`. Keep your existing `.env` if it is already configured.
+Create the database and movies table using the MySQL CLI:
+
+```sh
+mysql -h 127.0.0.1 -P 3306 -u root -p < database.sql
 npm start
 ```
 
-The server creates `synechron_movies_node` and an empty `movies` table automatically.
-The MySQL user needs permission to create the database and table. Existing data is preserved.
-Use `npm run dev` to restart automatically when `index.js` changes.
-If port 4000 is occupied, set another `PORT` in `.env`.
+Enter your MySQL password when prompted. Use the host, port, and username from `.env`.
+You can also execute `database.sql` in MySQL Workbench. It creates `synechron_movies_node`;
+if you change `DB_NAME`, update the two database references in the SQL file too.
+Rerunning the SQL preserves existing movies. Server startup checks the connection and table;
+database setup is performed explicitly with the SQL file.
+
+The API defaults to port 4000. Change `PORT` in `.env` if it is occupied.
+Use `npm run dev` for automatic restarts when JavaScript files change.
 
 | Method | Endpoint | Action |
 | --- | --- | --- |
