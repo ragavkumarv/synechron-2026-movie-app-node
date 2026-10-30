@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 
-const movies = [
+let movies = [
   {
     id: "101",
     name: "Iron man 2",
@@ -112,6 +112,8 @@ const movies = [
   },
 ];
 
+const HTTP_NOT_FOUND = 404;
+
 const PORT = 4000;
 app.get("/", function (request, response) {
   response.send("<h1>🙋‍♂️, 🌏 🎊✨🤩 Synechron</h1>");
@@ -121,12 +123,18 @@ app.get("/api/movies", function (request, response) {
   response.send(movies);
 });
 
+// :id -> any value matches | id -> hardcoded value
 app.get("/api/movies/:id", function (request, response) {
   const { id } = request.params;
-
-  console.log(id);
-  response.send(movies[0]);
+  const movie = movies.find((mv) => mv.id == id); // undefined
+  if (!movie) {
+    response.status(HTTP_NOT_FOUND).send({ error: "Movie not found" });
+  } else {
+    response.send(movie);
+  }
 });
+
+// Deleteg
 
 // Task create an another get api
 // /api/movies -> movies
