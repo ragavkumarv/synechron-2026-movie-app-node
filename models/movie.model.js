@@ -4,7 +4,7 @@ import db from "../config/database.js";
 const columns = "CAST(id AS CHAR) AS id, name, poster, rating, summary, trailer";
 
 export async function findAll() {
-  const [movies] = await db.query(`SELECT ${columns} FROM movies ORDER BY id DESC`);
+  const [movies] = await db.query(`SELECT ${columns} FROM movies ORDER BY movies.id DESC`);
   return movies;
 }
 
