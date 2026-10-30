@@ -9,7 +9,7 @@ cp .env.example .env
 ```
 
 Set your MySQL credentials in `.env`. Keep your existing `.env` if it is already configured.
-Create the database and movies table using the MySQL CLI:
+Create the database, table, and 11 sample movies using the MySQL CLI:
 
 ```sh
 mysql -h 127.0.0.1 -P 3306 -u root -p < database.sql
@@ -19,8 +19,8 @@ npm start
 Enter your MySQL password when prompted. Use the host, port, and username from `.env`.
 You can also execute `database.sql` in MySQL Workbench. It creates `synechron_movies_node`;
 if you change `DB_NAME`, update the two database references in the SQL file too.
-Rerunning the SQL preserves existing movies. Server startup checks the connection and table;
-database setup is performed explicitly with the SQL file.
+Rerunning the SQL skips existing movie ids and preserves edits. Normal server startup
+only checks the connection/table; it does not run the seed again.
 
 The API defaults to port 4000. Change `PORT` in `.env` if it is occupied.
 Use `npm run dev` for automatic restarts when JavaScript files change.
