@@ -1,4 +1,4 @@
-const fs = require("fs");
+import fs from "node:fs";
 
 // const quote = "No beauty shines brighter than that of a good heart 😊";
 

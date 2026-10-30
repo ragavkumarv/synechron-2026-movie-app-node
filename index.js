@@ -1,8 +1,9 @@
-const express = require("express");
-const cors = require("cors");
-const mysql = require("mysql2/promise");
+import express from "express";
+import cors from "cors";
+import mysql from "mysql2/promise";
+import dotenv from "dotenv";
 
-if (require("node:fs").existsSync(".env")) process.loadEnvFile();
+dotenv.config({ quiet: true });
 
 const options = {
   host: process.env.DB_HOST || "127.0.0.1",

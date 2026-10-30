@@ -1,7 +1,8 @@
 # Simple movie backend
 
 All backend code is in `index.js`: Express + MySQL CRUD for `synechron-2026-movie-app-react`.
-Requires Node.js 22.9+ and a running MySQL server.
+Uses ES module imports and dotenv for environment settings.
+Requires Node.js 22+ and a running MySQL server.
 
 ```sh
 npm install

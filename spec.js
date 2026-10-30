@@ -1,4 +1,4 @@
-const os = require("os");
+import os from "node:os";
 
 const printBytesToGB = (bytes) => `${(bytes / 1024 ** 3).toFixed(2)}GB`;
 
